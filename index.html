@@ -102,9 +102,12 @@
           <div><label>Duct material / gauge</label><input id="material" placeholder="16 ga black iron / stainless"/></div>
           <div><label>Fan type</label>
             <select id="fanType">
-              <option>Upblast hinged</option>
-              <option>Utility set</option>
+              <option>Upblast</option>
+              <option>Industrial</option>
               <option>In-line</option>
+              <option>PCU</option>
+              <option>Self-contained</option>
+              <option>Upblast hinged</option>
               <option>Unknown</option>
             </select>
           </div>
@@ -151,6 +154,30 @@
           <button class="ghost" type="button" id="btnAsset2">Add 2nd fan as new asset</button>
         </div>
         <div id="assetCard" class="text-[12px] text-[#9fe8c8] mt-2"></div>
+      </section>
+
+      <section class="card p-3 mb-3">
+        <div class="text-xs tracking-widest text-cyan-300 mb-1">MEASURED DUCT — COLLAR LOOKING AT THE FAN</div>
+        <p class="text-[11px] text-[#7aa89a] m-0 mb-2">Each piece gets a length. 45 is a slant. 90 is a hard turn. Panels live on the piece you can open.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 no-print">
+          <div>
+            <label>Piece</label>
+            <select id="ductKind">
+              <option value="V">Vertical</option>
+              <option value="S45">45 slant</option>
+              <option value="H">Horizontal</option>
+              <option value="U90">90 up</option>
+            </select>
+          </div>
+          <div><label>Length ft</label><input id="ductFt" type="number" min="0" step="0.5" value="4"/></div>
+          <div><label>Access panels</label><input id="ductPanels" type="number" min="0" step="1" value="0"/></div>
+          <div class="flex items-end"><button class="ghost w-full" type="button" id="btnAddDuct">Add measured piece</button></div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-2 no-print">
+          <button class="act" type="button" id="btnRun">Load collar → fan example</button>
+          <button class="ghost" type="button" id="btnFanEnd">Set fan on this asset</button>
+        </div>
+        <div id="tape" class="text-[12px] text-[#9fe8c8] mt-2"></div>
       </section>
 
       <section class="card p-3 mb-3">
@@ -787,11 +814,11 @@ function draw(){
     const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
     const dir=travelDir(e);
     ctx.fillStyle='#0a0a0f';
-    ctx.fillRect(mx-52, my-14, 104, 28);
+    ctx.fillRect(mx-78, my-14, 156, 28);
     ctx.fillStyle = on ? PALETTE.y : '#cfeee0';
     ctx.textAlign='center';
     ctx.font='14px ui-monospace,monospace';
-    ctx.fillText((e.lengthFt||0)+"' "+e.axis+" "+dir, mx, my+5);
+    ctx.fillText((e.lengthFt||0)+"' "+(e.kind||e.axis)+" "+dir+(e.panels?` · ${e.panels} AP`:''), mx, my+5);
   });
 
   state.nodes.forEach(n=>{
@@ -939,10 +966,14 @@ function audit(){
     if(e.axis==='H' && len>0){
       const need = Math.max(1, Math.ceil(len/12));
       const onRun = panels.filter(p => distToSeg(p.x,p.y,a.x,a.y,b.x,b.y) < 28).length;
-      if(onRun < need){
-        missingSlots += (need-onRun);
-        flags.push({lvl:'fail', code:'12-FT', text:`${a.label} → ${b.label} is ${len} ft horizontal with ${onRun} panel(s). Target ~every 12 ft (${need} opening(s)).`});
+      const counted = Math.max(onRun, +e.panels||0);
+      if(counted < need){
+        missingSlots += (need-counted);
+        flags.push({lvl:'fail', code:'12-FT', text:`${a.label} → ${b.label} is ${len} ft horizontal with ${counted} panel(s). Target ~every 12 ft (${need} opening(s)).`});
       }
+    }
+    if((e.kind==='S45' || e.kind==='U90') && !(+e.panels) && !panels.some(p => distToSeg(p.x,p.y,a.x,a.y,b.x,b.y)<40)){
+      flags.push({lvl:'warn', code:'TURN', text:`${e.kind} ${a.label} → ${b.label} has no access at the change of direction.`});
     }
   });
 
@@ -1260,6 +1291,99 @@ function loadAsset(kind){
   }
   selected=null; draw(); audit(); renderLib();
 }
+function placeRun(spec){
+  state = blank();
+  state.name = spec.name;
+  state.addr = spec.addr || '';
+  state.ahj = 'Austin';
+  state.tech = 'DoubleA';
+  state.fanType = spec.fan;
+  state.fanCount = 1;
+  state.hoodCount = 1;
+  state.packet = 'missing';
+  state.notes = spec.notes;
+  const h={id:uid(),type:'hood',x:180,y:560,label:spec.hood||'Hood',hoodStyle:'wall',wFt:spec.hoodFt||8,dFt:4,banks:1};
+  const nodes=[h];
+  const edges=[];
+  let x=180, y=500;
+  const col={id:uid(),type:'collar',x,y,label:'Collar',size:spec.collar||''};
+  nodes.push(col);
+  edges.push({id:uid(),from:h.id,to:col.id,lengthFt:1,axis:'V',kind:'collar'});
+  let prev=col;
+  spec.pieces.forEach((p,i)=>{
+    const ft=Math.max(0.5, +p.ft||1);
+    const px=Math.min(280, ft*12);
+    if(p.kind==='V' || p.kind==='U90') y -= px;
+    else if(p.kind==='S45'){ x += px*0.7; y -= px*0.7; }
+    else x += px;
+    const n={id:uid(), type: p.kind==='U90'||p.kind==='S45' ? 'elbow' : (p.kind==='V'?'ductV':'ductH'), x:Math.round(x), y:Math.round(y), label:p.label};
+    nodes.push(n);
+    edges.push({id:uid(), from:prev.id, to:n.id, lengthFt:ft, axis: (p.kind==='H'?'H':'V'), kind:p.kind, panels:+p.panels||0});
+    for(let k=0;k<(+p.panels||0);k++){
+      const t=(k+1)/((+p.panels||0)+1);
+      const a=prev, b=n;
+      nodes.push({id:uid(), type:'panel', x:Math.round(a.x+(b.x-a.x)*t), y:Math.round(a.y+(b.y-a.y)*t), label:'AP-'+(nodes.filter(z=>z.type==='panel').length+1)});
+    }
+    prev=n;
+  });
+  const fan={id:uid(), type:'fan', x:Math.round(x+30), y:Math.round(y-40), label:spec.fan};
+  nodes.push(fan);
+  edges.push({id:uid(), from:prev.id, to:fan.id, lengthFt:1, axis:'V', kind:'fan'});
+  state.nodes=nodes;
+  state.edges=edges;
+  state.ductTape=spec.pieces;
+  stateToForm();
+  const total=spec.pieces.reduce((s,p)=>s+(+p.ft||0),0);
+  const pans=spec.pieces.reduce((s,p)=>s+(+p.panels||0),0);
+  $('tape').innerHTML = spec.pieces.map((p,i)=>`${i+1}. <b class="ok">${p.label}</b> · ${p.ft} ft · ${p.panels||0} panel(s)`).join('<br>')
+    + `<br><b class="ok">${total} ft</b> of measured duct · ${pans} panels · ends at <b class="ok">${spec.fan}</b>`;
+  selected=null; lastId=fan.id; draw(); audit(); renderLib();
+}
+function exampleRun(){
+  placeRun({
+    name:'Measured run — collar to fan',
+    addr:'Looking up the collar',
+    hood:'Hood',
+    hoodFt:8,
+    fan:$('fanType').value || 'Upblast',
+    collar:'',
+    notes:'Collar looking toward fan: 4 ft vertical, 45 into a short slant, 45 into 20 ft horizontal with 3 access panels, 90 up into a 1-story vertical where the horizontal meets the riser, then the fan.',
+    pieces:[
+      {kind:'V', ft:4, panels:0, label:'4 ft vertical off collar'},
+      {kind:'S45', ft:3, panels:0, label:'45 away from hood'},
+      {kind:'S45', ft:3, panels:0, label:'45 into horizontal'},
+      {kind:'H', ft:20, panels:3, label:'20 ft horizontal'},
+      {kind:'U90', ft:12, panels:1, label:'90 up · 1 story to fan'}
+    ]
+  });
+}
+$('btnRun').onclick = exampleRun;
+$('btnAddDuct').onclick = () => {
+  if(!state.nodes.length) exampleRun();
+  const kind=$('ductKind').value;
+  const ft=+$('ductFt').value||1;
+  const panels=+$('ductPanels').value||0;
+  const label=({V:'Vertical',S45:'45 slant',H:'Horizontal',U90:'90 up'})[kind]+' '+ft+"'";
+  const last=state.nodes.filter(n=>n.type!=='appl' && n.type!=='panel').slice(-1)[0];
+  const fan=state.nodes.find(n=>n.type==='fan');
+  let x=(last?last.x:200), y=(last?last.y:400);
+  const px=Math.min(280, ft*12);
+  if(kind==='V'||kind==='U90') y-=px; else if(kind==='S45'){ x+=px*0.7; y-=px*0.7; } else x+=px;
+  const n={id:uid(), type: kind==='U90'||kind==='S45'?'elbow':(kind==='V'?'ductV':'ductH'), x:Math.round(x), y:Math.round(y), label};
+  state.nodes.push(n);
+  if(last) state.edges.push({id:uid(), from:last.id, to:n.id, lengthFt:ft, axis:kind==='H'?'H':'V', kind, panels});
+  if(fan){ fan.x=n.x+30; fan.y=n.y-40; state.edges=state.edges.filter(e=>e.to!==fan.id); state.edges.push({id:uid(), from:n.id, to:fan.id, lengthFt:1, axis:'V', kind:'fan'}); }
+  draw(); audit();
+  $('tape').textContent = ( $('tape').textContent? $('tape').textContent+' · ' : '') + label + (panels?` (${panels} AP)`:'');
+};
+$('btnFanEnd').onclick = () => {
+  const fan=state.nodes.find(n=>n.type==='fan');
+  const t=$('fanType').value;
+  state.fanType=t;
+  if(fan) fan.label=t;
+  draw(); audit();
+};
+
 $('btnAsset').onclick = () => loadAsset('blind');
 $('btnAsset2').onclick = () => loadAsset('second');
 
