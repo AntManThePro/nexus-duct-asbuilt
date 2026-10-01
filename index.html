@@ -121,6 +121,39 @@
       </section>
 
       <section class="card p-3 mb-3">
+        <div class="flex items-center justify-between gap-2">
+          <div class="text-xs tracking-widest text-cyan-300">ASSET = ONE EXHAUST SYSTEM</div>
+          <span class="chip">1 FAN PATH</span>
+        </div>
+        <p class="text-[11px] text-[#7aa89a] m-0 mb-2">Two fans to two hoods = two assets. Do not smash them into one drawing.</p>
+        <div class="grid sm:grid-cols-2 gap-2">
+          <div><label>Line name</label><input id="lineName" placeholder="Blind Salamander"/></div>
+          <div><label>Client hood ref</label><input id="hoodRef" placeholder="KEC - Main Line"/></div>
+          <div><label>Region</label><input id="region" placeholder="Region 2 - Austin"/></div>
+          <div><label>Account type</label><input id="acctType" placeholder="Hotel"/></div>
+          <div><label>Hood length ft</label><input id="assetLen" type="number" min="0" step="0.5" placeholder="12"/></div>
+          <div><label>Collars</label><input id="assetCollars" type="number" min="0" step="1" placeholder="2"/></div>
+          <div><label>Baffle filters</label><input id="assetFilters" type="number" min="0" step="1" placeholder="6"/></div>
+          <div><label>Filter type</label><input id="filterType" placeholder="HE stainless"/></div>
+          <div><label>Common horiz ft</label><input id="assetHoriz" type="number" min="0" step="0.5" placeholder="8"/></div>
+          <div><label>Common access panels</label><input id="assetPanels" type="number" min="0" step="1" placeholder="2"/></div>
+          <div><label>Revenue / service</label><input id="revenue" type="number" min="0" step="1" placeholder="650"/></div>
+          <div><label>Frequency</label><input id="freq" placeholder="3 Months"/></div>
+          <div><label>Techs</label><input id="techs" type="number" min="1" step="1" placeholder="2"/></div>
+          <div><label>Hours</label><input id="hours" type="number" min="0" step="0.5" placeholder="3.5"/></div>
+        </div>
+        <label>Appliances left → right</label>
+        <input id="applLine" placeholder="Fryer, Flat Grill, Stove Top, Char Grill"/>
+        <label>TechPix / photo packet</label>
+        <input id="pix" placeholder="https://app.mytechpix.com/go/..."/>
+        <div class="grid grid-cols-2 gap-2 mt-2 no-print">
+          <button class="act" type="button" id="btnAsset">Load Blind Salamander</button>
+          <button class="ghost" type="button" id="btnAsset2">Add 2nd fan as new asset</button>
+        </div>
+        <div id="assetCard" class="text-[12px] text-[#9fe8c8] mt-2"></div>
+      </section>
+
+      <section class="card p-3 mb-3">
         <div class="flex items-center justify-between mb-2">
           <div class="text-xs tracking-widest text-cyan-300">SYSTEM MAP</div>
           <div class="text-[10px] text-[#7aa89a]" id="hint">Select a tool. Tap canvas to drop. Connect two nodes.</div>
@@ -866,6 +899,15 @@ function audit(){
     }
     if(peak==='solid') flags.push({lvl:'fail', code:'SOLID', text:'Solid fuel under a hood. Monthly inspect + spark arrestor / dedicated run check. Do not treat like a fryer bank.'});
   }
+  if(state.asset){
+    const a=state.asset;
+    const hot = (a.appl||[]).some(x=>/fry|char|wok/i.test(x));
+    if(hot && state.volume==='mod') flags.push({lvl:'fail', code:'ASSET', text:'CRM cooking volume is Moderate, but the line is Fryer + Char. That is high-volume. 3-month frequency matches high, the volume field does not.'});
+    if(a.hinge && !a.belt) flags.push({lvl:'warn', code:'FAN', text:'Hinge kit checked with no size. Confirm hinge kit type before the roof.'});
+    if(a.belt && /upblast/i.test(a.fan||'')) flags.push({lvl:'warn', code:'FAN', text:'Upblast with belt size '+a.belt+'. Most upblasts are direct drive. Confirm it is not a utility set mislabeled.'});
+    if((a.panels||0)>0) flags.push({lvl:'pass', code:'ACCESS', text:a.panels+' common-duct access panels on the asset card. Still photograph each one.'});
+    if(a.pix) flags.push({lvl:'pass', code:'PIX', text:'TechPix packet linked. Photos are not a diagram — keep both.'});
+  }
   collars.forEach(c=>{
     if(!c.size) flags.push({lvl:'warn', code:'COLLAR', text:c.label+' has no size. Record 18x18, 12" rd, or whatever is in the metal.'});
   });
@@ -1133,6 +1175,93 @@ $('btnExport').onclick = () => {
   a.click();
 };
 $('btnPrint').onclick = () => { formToState(); audit(); window.print(); };
+
+function loadAsset(kind){
+  state = blank();
+  if(kind==='second'){
+    state.name = 'Blind Salamander';
+    state.addr = 'Region 2 - Austin · Hotel';
+    state.ahj = 'Austin';
+    state.tech = 'DoubleA';
+    state.lineName = 'Second line';
+    state.hoodRef = 'KEC - Line 2';
+    state.assetId = 'ASSET-2';
+    state.notes = 'Second fan path. Separate asset. Do not bill or diagram this on Asset 1.';
+    state.hoodCount = 1; state.fanCount = 1; state.volume = 'mod';
+    state.fanType = 'Upblast hinged';
+    const h={id:uid(),type:'hood',x:220,y:460,label:'Line 2',hoodStyle:'wall',wFt:8,dFt:4,banks:1};
+    const c={id:uid(),type:'collar',x:220,y:380,label:'Collar',size:'?'};
+    const f={id:uid(),type:'fan',x:480,y:180,label:'Fan-2'};
+    state.nodes=[h,c,f];
+    state.edges=[{id:uid(),from:h.id,to:c.id,lengthFt:2,axis:'V'},{id:uid(),from:c.id,to:f.id,lengthFt:10,axis:'H'}];
+  } else {
+    state.name = 'Blind Salamander';
+    state.addr = 'Region 2 - Austin · Hotel';
+    state.ahj = 'Austin';
+    state.tech = 'DoubleA';
+    state.material = 'Not on asset card';
+    state.packet = 'stale';
+    state.volume = 'mod';
+    state.fanType = 'Upblast hinged';
+    state.hoodCount = 1;
+    state.fanCount = 1;
+    state.asset = {
+      id:'ASSET-1', line:'Blind Salamander', ref:'KEC - Main Line', region:'Region 2 - Austin',
+      account:'Hotel', cls:'1 Electric PW', revenue:650, freq:'3 Months', techs:2, hours:3.5,
+      hoods:1, len:12, collars:2, filters:6, filterType:'High Efficiency - Stainless Steel',
+      drip:1, filtersInService:true, grease:'Moderate', vert:1, vertLen:'1 Floor',
+      horiz:'<10', panels:2, fans:1, fan:'Upblast', hinge:true, belt:'4', pcu:false,
+      pix:'https://app.mytechpix.com/go/95609hu7xs7q1xz',
+      appl:['Fryer','Flat Grill','Stove Top','Char Grill']
+    };
+    state.notes = 'ASSET 1 of site. 12ft wall, 2 collars, 6 HE baffles, 1 drip cup. L→R: Fryer, Flat Grill, Stove Top, Char Grill. 1 floor rise, common horiz <10ft, 2 panels, 1 upblast, hinge kit yes, belt size 4, no PCU. $650 / 3 months / 2 techs / 3.5 hr.';
+    const h={id:uid(),type:'hood',x:280,y:480,label:'Blind Salamander',hoodStyle:'wall',wFt:12,dFt:4,banks:1};
+    const c1={id:uid(),type:'collar',x:220,y:400,label:'Collar 1',size:'unknown'};
+    const c2={id:uid(),type:'collar',x:340,y:400,label:'Collar 2',size:'unknown'};
+    const rise={id:uid(),type:'elbow',x:280,y:280,label:'1-floor rise'};
+    const turn={id:uid(),type:'elbow',x:460,y:280,label:'To fan'};
+    const fan={id:uid(),type:'fan',x:560,y:180,label:'Upblast'};
+    const p1={id:uid(),type:'panel',x:340,y:280,label:'AP-1'};
+    const p2={id:uid(),type:'panel',x:400,y:280,label:'AP-2'};
+    const kinds=[['fryer','Fryer',2.5],['griddle','Flat Grill',3],['range','Stove Top',3],['char','Char Grill',3]];
+    const appls=kinds.map((k,i)=>({id:uid(),type:'appl',x:160+i*70,y:560,label:k[1],appl:k[0],wFt:k[2],dFt:2.4,parentHood:h.id}));
+    state.nodes=[h,c1,c2,rise,turn,fan,p1,p2,...appls];
+    state.edges=[
+      {id:uid(),from:h.id,to:c1.id,lengthFt:2,axis:'V'},
+      {id:uid(),from:h.id,to:c2.id,lengthFt:2,axis:'V'},
+      {id:uid(),from:c1.id,to:rise.id,lengthFt:10,axis:'V'},
+      {id:uid(),from:rise.id,to:turn.id,lengthFt:8,axis:'H'},
+      {id:uid(),from:turn.id,to:fan.id,lengthFt:6,axis:'V'}
+    ];
+    lastId=fan.id;
+  }
+  stateToForm();
+  if($('lineName')){
+    const a=state.asset||{};
+    $('lineName').value=a.line||state.lineName||'';
+    $('hoodRef').value=a.ref||state.hoodRef||'';
+    $('region').value=a.region||'';
+    $('acctType').value=a.account||'';
+    $('assetLen').value=a.len||'';
+    $('assetCollars').value=a.collars||'';
+    $('assetFilters').value=a.filters||'';
+    $('filterType').value=a.filterType||'';
+    $('assetHoriz').value=a.horiz==='<10'?8:'';
+    $('assetPanels').value=a.panels||'';
+    $('revenue').value=a.revenue||'';
+    $('freq').value=a.freq||'';
+    $('techs').value=a.techs||'';
+    $('hours').value=a.hours||'';
+    $('applLine').value=(a.appl||[]).join(', ');
+    $('pix').value=a.pix||'';
+    $('assetCard').innerHTML = a.line
+      ? `<b class="ok">${a.line}</b> · ${a.ref} · ${a.region} · ${a.account}<br>Class ${a.cls} · $${a.revenue} / ${a.freq} · ${a.techs} techs · ${a.hours} hr<br>${a.len}' hood · ${a.collars} collars · ${a.filters} baffles · ${a.filterType}<br>Grease ${a.grease} · vert ${a.vertLen} · horiz ${a.horiz}' · ${a.panels} panels · ${a.fan} · hinge ${a.hinge?'YES':'NO'} · belt ${a.belt}`
+      : 'Second fan path. New asset. Fill the card before you bid it.';
+  }
+  selected=null; draw(); audit(); renderLib();
+}
+$('btnAsset').onclick = () => loadAsset('blind');
+$('btnAsset2').onclick = () => loadAsset('second');
 
 $('btnDemo').onclick = () => {
   state = blank();
