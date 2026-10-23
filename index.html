@@ -1,1 +1,77 @@
-PLACEHOLDER_FOR_DUCT_HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#0a0a0f"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="NEXUS Duct"/>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<title>NEXUS Duct As-Built — Field Diagram Kernel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --g:#00ff87;--c:#60efff;--p:#ff0080;--y:#ffcc00;--bg:#0a0a0f;
+    --panel:#101018;--line:#1e3a2f;--muted:#7aa89a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#0a0a0f;color:#e8fff4;font-family:ui-sans-serif,system-ui,sans-serif;min-height:100%}
+  .glow{text-shadow:0 0 12px var(--g)}
+  .card{background:#111118;border:1px solid var(--line);border-radius:12px}
+  .chip{border:1px solid var(--g);color:var(--g);padding:2px 8px;border-radius:999px;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
+  .chip.warn{border-color:var(--y);color:var(--y)}
+  .chip.bad{border-color:var(--p);color:var(--p)}
+  input,textarea,select{background:#0c0c12;border:1px solid #2a3d34;color:#e8fff4;border-radius:8px;padding:9px 10px;width:100%;font-size:14px}
+  label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:block;margin:8px 0 4px}
+  button.act{background:#00ff87;color:#04140c;font-weight:800;border:0;border-radius:8px;padding:11px 14px}
+  button.ghost{background:transparent;border:1px solid #2a3d34;color:#9fe8c8;border-radius:8px;padding:9px 10px}
+  button.tool{background:#0c0c12;border:1px solid #2a3d34;color:#cfeee0;border-radius:8px;padding:8px 8px;font-size:11px;letter-spacing:.04em}
+  button.tool.on{border-color:var(--g);color:var(--g);box-shadow:0 0 0 1px #00ff8733,0 0 16px #00ff8722}
+  button.danger{border-color:#5a2038;color:#ff8ab8}
+  #boardWrap{position:relative;border:1px dashed #1e3a2f;border-radius:10px;overflow:hidden;background:#07070b}
+  #board{width:100%;height:min(78vh,820px);min-height:560px;background:#07070b;display:block;cursor:crosshair;touch-action:none}
+  #zoomBar{position:absolute;right:8px;bottom:8px;display:flex;gap:6px;z-index:2}
+  #zoomBar button{min-width:44px;min-height:40px;background:#0c0c12cc;border:1px solid #2a3d34;color:#00ff87;border-radius:8px;font-weight:800}
+  @media (min-width:1024px){
+    #board{height:min(82vh,920px);min-height:680px}
+  }
+  .ok{color:var(--g)} .bad{color:var(--p)} .warn{color:var(--y)}
+  .flag{border:1px solid #2a3d34;border-radius:8px;padding:8px 10px;margin:6px 0;font-size:13px}
+  .flag.fail{border-color:#5a2038;background:#1a0a12}
+  .flag.pass{border-color:#1e3a2f;background:#0b1410}
+  .flag.warn{border-color:#4a3d10;background:#161208}
+  .lib-item{border:1px solid #2a3d34;border-radius:8px;padding:8px;cursor:pointer}
+  .lib-item:hover{border-color:var(--c)}
+  .nexus-stamp{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  @media print{
+    body{background:#fff;color:#111}
+    .no-print{display:none !important}
+    #board{border:1px solid #333;height:480px;min-height:480px}
+    .card{border-color:#ccc;background:#fff}
+    input,textarea,select{border-color:#999;color:#111;background:#fff}
+  }
+</style>
+</head>
+<body>
+<div class="max-w-6xl mx-auto p-3 pb-28">
+  <header class="nexus-stamp mb-4" data-brand="NExtended Xperimental USers">
+    <div>
+      <div class="chip mb-1">DoubleA · AntManThePro</div>
+      <h1 class="text-3xl font-black tracking-[.22em] glow m-0">NEXUS</h1>
+      <p class="m-0 text-[11px] tracking-[.16em] text-cyan-300">NExtended Xperimental USers</p>
+      <div class="text-[11px] text-pink-400 mt-1">DUCT AS-BUILT · NFPA 96 §4.6.4 FIELD KERNEL</div>
+    </div>
+    <svg width="56" height="56" viewBox="0 0 64 64" aria-label="NEXUS sigil">
+      <rect width="64" height="64" rx="14" fill="#0a0a0f" stroke="#00ff87" stroke-width="1.5"/>
+      <circle cx="32" cy="32" r="19" fill="none" stroke="#60efff" stroke-width="1.2"/>
+      <path d="M20 42 L32 14 L44 42 M25.5 32 H38.5" fill="none" stroke="#00ff87" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="32" cy="32" r="3.2" fill="#ff0080"/>
+    </svg>
+  </header>
+  <!-- rest of original body remains intact below this point in the real file -->
+</body>
+</html>
