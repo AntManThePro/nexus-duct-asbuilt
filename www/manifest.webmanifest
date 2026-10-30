@@ -1,0 +1,21 @@
+{
+  "name": "NEXUS Duct As-Built",
+  "short_name": "NEXUS Duct",
+  "description": "Offline NFPA 96 kitchen exhaust duct as-built & compliance kernel. Words draw the map.",
+  "id": "/",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#070a0f",
+  "theme_color": "#070a0f",
+  "categories": ["productivity", "utilities", "business"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "icons/screenshot-wide.png", "sizes": "1600x900", "type": "image/png", "form_factor": "wide", "label": "As-built canvas with NFPA 96 audit" }
+  ]
+}

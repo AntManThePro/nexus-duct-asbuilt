@@ -1,0 +1,33 @@
+{
+  "appId": "com.antmanthepro.nexusduct",
+  "appName": "NEXUS Duct",
+  "webDir": "www",
+  "backgroundColor": "#070a0f",
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#070a0f",
+    "preferredContentMode": "mobile",
+    "scheme": "NEXUS Duct"
+  },
+  "android": {
+    "backgroundColor": "#070a0f",
+    "allowMixedContent": false,
+    "captureInput": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "launchAutoHide": true,
+      "backgroundColor": "#070a0f",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": false
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#070a0f",
+      "overlaysWebView": false
+    }
+  }
+}

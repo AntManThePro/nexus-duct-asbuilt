@@ -1,0 +1,30 @@
+name: iOS Build (Capacitor)
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+jobs:
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint && npm test
+      - run: npx cap add ios
+      - run: npm run cap:assets -- --ios
+      - run: npx cap sync ios
+      - name: Build (simulator, unsigned) to validate the Xcode project
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO build | tail -40
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nexus-duct-ios-project
+          path: ios
+          retention-days: 7

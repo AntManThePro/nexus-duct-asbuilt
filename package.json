@@ -1,0 +1,37 @@
+{
+  "name": "nexus-duct-asbuilt",
+  "version": "5.0.0",
+  "description": "NEXUS Duct As-Built — offline NFPA 96 kitchen exhaust as-built & compliance kernel for iOS, Android and web.",
+  "private": true,
+  "license": "MIT",
+  "author": "DoubleA · AntManThePro (NExtended Xperimental USers)",
+  "scripts": {
+    "start": "npx --yes serve www -l 4173",
+    "icons": "python3 scripts/gen-icons.py",
+    "lint": "node scripts/lint.js",
+    "test": "node --test tests/",
+    "cap:add:android": "npx cap add android",
+    "cap:add:ios": "npx cap add ios",
+    "cap:sync": "npx cap sync",
+    "cap:assets": "npx @capacitor/assets generate --iconBackgroundColor '#070a0f' --iconBackgroundColorDark '#070a0f' --splashBackgroundColor '#070a0f' --splashBackgroundColorDark '#070a0f'",
+    "android": "npx cap sync android && npx cap open android",
+    "ios": "npx cap sync ios && npx cap open ios",
+    "android:release": "npx cap sync android && cd android && ./gradlew bundleRelease",
+    "android:debug": "npx cap sync android && cd android && ./gradlew assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.0.0"
+  }
+}

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#070a0f">
+<meta name="description" content="NEXUS Duct As-Built — offline NFPA 96 kitchen exhaust field as-built & compliance kernel. Words draw the map.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NEXUS Duct">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="css/app.css">
+<title>NEXUS Duct As-Built — NFPA 96 Field Kernel</title>
+</head>
+<body>
+
+<!-- ================= HEADER ================= -->
+<header class="app-header no-print">
+  <div class="header-row">
+    <div class="brand">
+      <svg class="brand-sigil" viewBox="0 0 64 64" aria-label="NEXUS sigil">
+        <rect width="64" height="64" rx="14" fill="#0a0a0f" stroke="#00ff87" stroke-width="1.5"/>
+        <circle cx="32" cy="32" r="19" fill="none" stroke="#60efff" stroke-width="1.2"/>
+        <path d="M20 42 L32 14 L44 42 M25.5 32 H38.5" fill="none" stroke="#00ff87" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="32" cy="32" r="3.2" fill="#ff0080"/>
+      </svg>
+      <div style="min-width:0">
+        <div class="brand-title">
+          <strong>NEXUS</strong>
+          <span class="chip">NFPA 96 · v5.0</span>
+        </div>
+        <div class="brand-sub">NExtended Xperimental USers · <span class="pink">DUCT AS-BUILT KERNEL</span></div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <button id="toggleAudioBtn" class="btn sm" title="Audio cues" aria-label="Toggle audio cues">
+        <span id="audioStatusDot" class="status-dot"></span><span class="lbl-md">AUDIO</span>
+      </button>
+      <div class="seg" role="tablist" aria-label="View mode">
+        <button id="viewWizardBtn" class="on">WIZARD</button>
+        <button id="viewProBtn">PRO</button>
+      </div>
+      <button id="toggleTutorialBtn" class="btn sm amber" aria-label="Field briefing">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg><span class="lbl-md">BRIEFING</span>
+      </button>
+    </div>
+  </div>
+  <nav id="wizardNavBar" class="wizard-nav" aria-label="Wizard steps">
+    <div class="wizard-nav-inner">
+      <button class="wstep on" data-step="1"><span class="n">1</span>DOSSIER</button><div class="wsep"></div>
+      <button class="wstep" data-step="2"><span class="n">2</span>SLANG PARSER</button><div class="wsep"></div>
+      <button class="wstep" data-step="3"><span class="n">3</span>CAD &amp; REDLINE</button><div class="wsep"></div>
+      <button class="wstep" data-step="4"><span class="n">4</span>NFPA 96 AUDIT</button><div class="wsep"></div>
+      <button class="wstep" data-step="5"><span class="n">5</span>PACKET</button>
+    </div>
+  </nav>
+</header>
+
+<!-- ================= BRIEFING DOCK ================= -->
+<section id="briefingDock" class="briefing no-print">
+  <div class="briefing-inner">
+    <div class="section-head">
+      <div class="lead"><span class="status-dot pulse" style="background:var(--amber)"></span><h2 class="amber">NFPA 96 Field Briefing &amp; Walkthrough</h2></div>
+      <button id="closeBriefingBtn" class="btn sm ghost">MINIMIZE ✕</button>
+    </div>
+    <div class="briefing-grid">
+      <div class="video-frame">
+        <div class="video-aspect">
+          <canvas id="tutorialCanvas"></canvas>
+          <div id="videoOverlay" class="video-overlay">
+            <div class="play-btn"><svg id="playIconSvg" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></div>
+            <span id="briefingActionText">▶ Start Interactive Field Briefing</span>
+          </div>
+          <div class="hud-tag tl"><span class="status-dot pulse" style="width:6px;height:6px;background:var(--cyan)"></span><span id="videoHudLabel">MODULE 01 // OVERVIEW</span></div>
+          <div class="hud-tag br" id="videoDurationLabel">00:00 / 00:24</div>
+        </div>
+        <div class="progress" id="videoProgressBar"><div id="videoProgressFill"></div></div>
+      </div>
+      <div class="briefing-copy">
+        <span class="chip">VOICEOVER · ACTIVE DISPATCH</span>
+        <h3 id="briefingHeadline">Map an Exhaust Duct in Under 2 Minutes</h3>
+        <p id="briefingSubtext">1. Enter hood, appliances and rooftop fan specs. 2. Dictate or type the duct path in everyday field slang ("up 10ft, 90 elbow, horz 15ft"). 3. Redline leaks &amp; access doors. 4. Let the NFPA 96 kernel audit clearance, door spacing and the §4.6 drawing packet instantly.</p>
+        <div class="rule-chips">
+          <div><b class="cyan" id="chipSpan">12 FT</b><small>HORZ ACCESS SPACING</small></div>
+          <div><b class="amber">EVERY TURN</b><small>ACCESS AT DIRECTION CHANGE</small></div>
+          <div><b class="green">HINGED</b><small>UPBLAST FAN MANDATE</small></div>
+        </div>
+        <button id="skipTutorialBtn" class="btn block">Got It // Close Briefing</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MAIN ================= -->
+<main>
+
+  <!-- STEP 1: DOSSIER -->
+  <section id="step1Container" class="card hud-corner step-card">
+    <div class="section-head">
+      <div class="lead"><span class="num">01</span><div><h2>Site &amp; AHJ Field Dossier</h2><p>Baseline, jurisdiction, hood envelope, appliances &amp; fan.</p></div></div>
+      <span class="chip">NFPA 96 CH. 4</span>
+    </div>
+
+    <div class="form-grid cols-4">
+      <div><label class="f" for="siteNameInput">Facility / Restaurant</label><input id="siteNameInput" class="f" type="text" placeholder="Smokestack BBQ - Pit 03"></div>
+      <div><label class="f" for="ahjCodeInput">Local AHJ / Fire Marshal</label><input id="ahjCodeInput" class="f" type="text" placeholder="Austin FD Prevention / Travis Co."></div>
+      <div><label class="f" for="technicianInput">Technician / Company</label><input id="technicianInput" class="f" type="text" placeholder="DoubleA · AntManThePro"></div>
+      <div><label class="f" for="dateInput">Survey Date</label><input id="dateInput" class="f" type="date"></div>
+      <div>
+        <label class="f" for="dutyLevelSelect">Cooking Appliance Duty (declared)</label>
+        <select id="dutyLevelSelect" class="f">
+          <option value="extra-heavy">Solid Fuel / Extra Heavy (Mesquite, Charcoal)</option>
+          <option value="heavy">Heavy Duty (Woks, Charbroilers, Open Flame)</option>
+          <option value="medium" selected>Medium Duty (Fryers, Griddles, Ranges)</option>
+          <option value="light">Light Duty (Ovens, Steam Tables)</option>
+        </select>
+      </div>
+      <div>
+        <label class="f" for="fanTypeSelect">Rooftop Exhaust Discharge</label>
+        <select id="fanTypeSelect" class="f">
+          <option value="upblast_hinged" selected>Upblast Centrifugal — Hinged Base [7.8.2.1]</option>
+          <option value="upblast_unhinged">Upblast Centrifugal — Non-Hinged (VIOLATION)</option>
+          <option value="inline_blower">In-Line Utility Blower (dual access req.)</option>
+          <option value="sidewall">Sidewall Louvered Discharge (clearance warning)</option>
+        </select>
+      </div>
+      <div>
+        <label class="f" for="spanRuleSelect">Horizontal Access Spacing Rule</label>
+        <select id="spanRuleSelect" class="f">
+          <option value="12" selected>NFPA 96 §7.4.1.2 — 12 ft max</option>
+          <option value="20">IMC §506.3.9 — 20 ft max (AHJ adopted)</option>
+        </select>
+      </div>
+      <div>
+        <label class="f" for="volumeSelect">Cooking Volume (NFPA 96 Table 12.4)</label>
+        <select id="volumeSelect" class="f">
+          <option value="solid">Solid fuel cooking</option>
+          <option value="high">High-volume (24-hr, charbroil, wok)</option>
+          <option value="moderate" selected>Moderate-volume</option>
+          <option value="low">Low-volume (church, camp, seasonal)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-grid" style="grid-template-columns:1fr">
+      <div class="form-grid" style="gap:14px">
+        <!-- Hood configuration -->
+        <div class="sub-card">
+          <h4>Hood Configuration</h4>
+          <div class="hood-type-grid" id="hoodTypeGrid">
+            <button class="hood-type on" data-hood="wall">
+              <svg viewBox="0 0 100 30"><rect x="5" y="2" width="90" height="4" fill="#60efff"/><path d="M15 6 L85 6 L75 24 L25 24 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Wall Canopy
+            </button>
+            <button class="hood-type" data-hood="sbs">
+              <svg viewBox="0 0 100 30"><rect x="5" y="2" width="90" height="4" fill="#60efff"/><path d="M8 6 L46 6 L40 24 L14 24 Z M54 6 L92 6 L86 24 L60 24 Z" fill="none" stroke="currentColor" stroke-width="2"/></svg>Side-by-Side
+            </button>
+            <button class="hood-type" data-hood="island">
+              <svg viewBox="0 0 100 30"><path d="M10 10 L90 10 L80 24 L20 24 Z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="50" y1="2" x2="50" y2="10" stroke="#60efff" stroke-width="3"/></svg>Island
+            </button>
+          </div>
+          <div style="margin-top:10px">
+            <label class="f">Hood Length (ft)</label>
+            <div class="range-row"><input id="hoodLengthRange" type="range" min="4" max="30" step="0.5" value="10"><output id="hoodLengthOut">10.0 ft</output></div>
+          </div>
+          <div>
+            <label class="f">Hood Depth (ft)</label>
+            <div class="range-row"><input id="hoodDepthRange" type="range" min="2" max="8" step="0.5" value="4"><output id="hoodDepthOut">4.0 ft</output></div>
+          </div>
+          <div>
+            <label class="f">Duct Collars</label>
+            <div class="range-row"><input id="collarRange" type="range" min="1" max="4" step="1" value="1"><output id="collarOut">1</output></div>
+            <div class="help">Flow direction is rendered hood → fan on the canvas.</div>
+          </div>
+        </div>
+
+        <!-- Appliances -->
+        <div class="sub-card">
+          <h4>Appliances Under Canopy</h4>
+          <div class="appl-add">
+            <div><label class="f" for="applNameInput">Appliance</label><input id="applNameInput" class="f" type="text" placeholder="40 lb Fryer" list="applSuggest"></div>
+            <datalist id="applSuggest">
+              <option value="Fryer"><option value="Griddle"><option value="6-Burner Range"><option value="Charbroiler"><option value="Wok Range"><option value="Convection Oven"><option value="Salamander"><option value="Smoker / Pit"><option value="Steam Kettle">
+            </datalist>
+            <div>
+              <label class="f" for="applClassSelect">Load Class</label>
+              <select id="applClassSelect" class="f">
+                <option value="light">Light</option>
+                <option value="medium" selected>Medium</option>
+                <option value="heavy">Heavy</option>
+                <option value="extra-heavy">Extra Heavy / Solid Fuel</option>
+              </select>
+            </div>
+            <div><label class="f" for="applWidthInput">Width (ft)</label><input id="applWidthInput" class="f" type="number" min="0.5" max="12" step="0.5" value="2.5"></div>
+            <button id="addApplianceBtn" class="btn green">+ ADD</button>
+          </div>
+          <div id="applianceList" class="appl-list" style="margin-top:10px"></div>
+          <div id="applianceSummary" class="help"></div>
+        </div>
+      </div>
+
+      <!-- §4.6 drawing packet -->
+      <div class="sub-card">
+        <h4>NFPA 96 §4.6 Drawing Packet On Premises (§4.6.4 Flags)</h4>
+        <div class="form-grid cols-3" style="gap:4px 14px">
+          <label class="check"><input type="checkbox" id="pkDrawings" checked> Exhaust system drawing(s) on premises</label>
+          <label class="check"><input type="checkbox" id="pkInstructions"> Operating instructions for subassemblies</label>
+          <label class="check"><input type="checkbox" id="pkElectrical"> Electrical schematics included</label>
+          <label class="check"><input type="checkbox" id="pkComponents" checked> Component / fitting schedule</label>
+          <label class="check"><input type="checkbox" id="pkCleaning"> Cleaning &amp; inspection records available</label>
+          <label class="check"><input type="checkbox" id="permitGapCheck" checked> Permit as-built gap (existing unrecorded run)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="row between">
+      <span class="mono dim" style="font-size:10px">Autosaves locally on this device · no account, no cloud.</span>
+      <span class="mono cyan" style="font-size:10px"><span class="status-dot" style="width:6px;height:6px"></span> KERNEL READY FOR GEOMETRY INGESTION</span>
+    </div>
+  </section>
+
+  <!-- STEP 2: SLANG PARSER -->
+  <section id="step2Container" class="card hud-corner step-card">
+    <div class="section-head">
+      <div class="lead"><span class="num amber">02</span><div><h2>"Words Draw the Map" // Trade Slang Parser</h2><p>Offline fuzzy engine turns field slang &amp; typos into CAD duct geometry.</p></div></div>
+      <span class="chip amber">FUZZY NLP v3</span>
+    </div>
+    <div class="samples">
+      <span>Samples:</span>
+      <button class="sample-btn" data-sample="Hood collar up 8ft then dogleg 90 right horizontal 22ft with access panel then slant 45 up 6ft into hinged upblast fan">"up 8ft dogleg 90 right horz 22ft slant 45 fan"</button>
+      <button class="sample-btn" data-sample="start hood straight up ten feet kick 90 left 14 ft to ceiling kick 90 up 12 ft to rooftop exhaust">"straight up ten feet kick 90 left 14ft..."</button>
+      <button class="sample-btn hz" data-sample="hood risr 12ft hard trun horzontal 24ft no accss door to fan">"risr 12ft hard trun (typos)"</button>
+    </div>
+    <div class="parser-box">
+      <textarea id="slangTextInput" class="f" rows="4" placeholder="Speak or type the run in field terms — e.g. 'hood riser up 8ft, 90 right 18ft with door, slant 45 up 6ft to rooftop hinged fan'"></textarea>
+      <div class="parser-actions">
+        <button id="voiceBtn" class="btn sm" title="Dictate">
+          <svg viewBox="0 0 24 24" fill="currentColor" style="color:var(--amber)"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg><span id="voiceBtnLabel">DICTATE</span>
+        </button>
+        <button id="parseRunBtn" class="btn sm primary">COMPILE TO MAP →</button>
+      </div>
+    </div>
+    <div class="telemetry">
+      <div class="row between"><span class="muted">PARSED TOKEN BREAKDOWN</span><span id="tokenCountLabel" class="cyan">0 SEGMENTS</span></div>
+      <div id="tokenChips" class="token-chips"><i>Type a description and press Compile to see the fuzzy normalization engine work.</i></div>
+    </div>
+  </section>
+
+  <!-- STEP 3: CANVAS -->
+  <section id="step3Container" class="card hud-corner step-card">
+    <div class="section-head">
+      <div class="lead"><span class="num green">03</span><div><h2>System As-Built Canvas // Dual Mode</h2><p>Vector schematic to scale + instant redline markup. Pinch / wheel to zoom, drag to pan.</p></div></div>
+      <span class="chip green">1 UNIT = 1 FT</span>
+    </div>
+    <div class="canvas-toolbar">
+      <div class="seg">
+        <button id="modeCadBtn" class="on">CAD NODES</button>
+        <button id="modePanBtn">PAN</button>
+        <button id="modeDrawBtn">REDLINE PEN</button>
+      </div>
+      <button id="autoLayoutBtn" class="btn sm">⟲ AUTO-LAYOUT</button>
+      <button id="toggleLibBtn" class="btn sm cyan-outline">+ COMPONENT LIBRARY</button>
+      <button id="clearRedlineBtn" class="btn sm hazard">CLEAR MARKUP</button>
+      <button id="resetCanvasBtn" class="btn sm ghost">RESET</button>
+    </div>
+    <div id="libraryPanel" class="sub-card hidden" style="margin-bottom:10px">
+      <h4>Component Library — tap to append to run</h4>
+      <div class="lib-grid" id="libraryGrid"></div>
+    </div>
+    <div id="redlineToolbar" class="redline-bar hidden">
+      <div class="row">
+        <span class="muted">COLOR</span>
+        <button class="color-btn on" data-color="#ff3d00" style="background:#ff3d00" title="Hazard / leak"></button>
+        <button class="color-btn" data-color="#ffb300" style="background:#ffb300" title="Grease alert"></button>
+        <button class="color-btn" data-color="#00e5ff" style="background:#00e5ff" title="As-built note"></button>
+        <button class="color-btn" data-color="#ff0080" style="background:#ff0080" title="NEXUS pink"></button>
+        <button class="color-btn" data-color="#ffffff" style="background:#fff" title="Obstacle"></button>
+        <span class="muted" style="margin-left:8px">STROKE</span>
+        <select id="penWidthSelect" class="f" style="width:auto;min-height:30px;padding:4px 8px">
+          <option value="2">Fine</option><option value="4" selected>Medium</option><option value="8">Marker</option>
+        </select>
+        <button id="undoStrokeBtn" class="btn sm">↶ UNDO</button>
+      </div>
+      <span class="amber">✎ Stylus / finger active — draw directly on canvas</span>
+    </div>
+    <div class="board-wrap">
+      <div id="canvasContainer" class="board blueprint-grid">
+        <canvas id="systemCanvas"></canvas>
+        <div class="hud tl"><b>● LIVE SCHEMATIC</b><div id="canvasStatsLabel">NODES: 0 // RUN: 0 FT</div></div>
+        <div class="hud bl"><span class="green">●</span> Door <span class="hazard" style="margin-left:6px">●</span> Door deficit <span class="amber" style="margin-left:6px">▲</span> Fan <span class="cyan" style="margin-left:6px">→</span> Flow</div>
+        <div class="zoom-bar"><button id="zoomOutBtn" aria-label="Zoom out">−</button><button id="zoomFitBtn" aria-label="Fit">FIT</button><button id="zoomInBtn" aria-label="Zoom in">+</button></div>
+      </div>
+    </div>
+    <div id="nodeEditorBox" class="node-editor hidden">
+      <div class="row between" style="margin-bottom:8px"><b id="selectedNodeTitle" class="cyan">EDIT NODE</b><button class="btn sm ghost" id="closeNodeBtn">✕</button></div>
+      <div class="grid">
+        <div><label class="f" for="nodeLengthInput">Length (ft)</label><input id="nodeLengthInput" class="f" type="number" step="0.5" min="0"></div>
+        <div>
+          <label class="f" for="nodeTypeSelect">Component</label>
+          <select id="nodeTypeSelect" class="f">
+            <option value="hood">Hood Collar</option><option value="vertical">Vertical Riser</option><option value="elbow90">90° Elbow</option>
+            <option value="elbow45">45° Offset</option><option value="horizontal">Horizontal Run</option><option value="cleanout">Access Door / Cleanout</option><option value="fan">Exhaust Fan</option>
+          </select>
+        </div>
+        <div>
+          <label class="f" for="nodeDirSelect">Direction</label>
+          <select id="nodeDirSelect" class="f"><option value="up">Up</option><option value="right">Right</option><option value="left">Left</option><option value="down">Down</option></select>
+        </div>
+        <div>
+          <label class="f" for="nodeDoorSelect">Access Door</label>
+          <select id="nodeDoorSelect" class="f"><option value="yes">YES — listed door</option><option value="no">NO</option></select>
+        </div>
+        <div class="row" style="gap:6px"><button id="saveNodeBtn" class="btn primary" style="flex:1">UPDATE</button><button id="deleteNodeBtn" class="btn hazard">DEL</button></div>
+      </div>
+      <div><label class="f" for="nodeNoteInput" style="margin-top:8px">Field note</label><input id="nodeNoteInput" class="f" type="text" placeholder="e.g. grease weep at seam, 2in gap to joist"></div>
+    </div>
+  </section>
+
+  <!-- STEP 4: AUDIT -->
+  <section id="step4Container" class="card hud-corner step-card">
+    <div class="section-head">
+      <div class="lead"><span class="num">04</span><div><h2>Automated NFPA 96 Compliance Kernel</h2><p>Geometric rules engine: access, turns, risers, fan, hood, packet.</p></div></div>
+      <span id="complianceOverallBadge" class="chip green">AUDITING…</span>
+    </div>
+    <div class="row between" style="margin-bottom:12px;gap:16px">
+      <div class="score-ring">
+        <svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="none" stroke="#1f2d47" stroke-width="8"/><circle id="scoreArc" cx="40" cy="40" r="34" fill="none" stroke="#00e676" stroke-width="8" stroke-linecap="round" stroke-dasharray="213.6" stroke-dashoffset="0" transform="rotate(-90 40 40)"/></svg>
+        <div><div class="val" id="scoreVal">100%</div><div class="lbl">COMPLIANCE SCORE</div></div>
+      </div>
+      <div class="mono" style="font-size:11px;text-align:right">
+        <div class="muted">INSPECTION CADENCE (TABLE 12.4)</div><div id="cadenceLabel" class="amber" style="font-weight:700;font-size:13px">SEMIANNUALLY</div>
+      </div>
+    </div>
+    <div class="audit-grid" id="auditGrid"></div>
+    <div class="divider"></div>
+    <h4 class="mono muted" style="font-size:10px;letter-spacing:.14em;margin:0 0 8px">§4.6 DRAWING PACKET FLAGS</h4>
+    <div id="packetFlags" class="flag-list"></div>
+  </section>
+
+  <!-- STEP 5: PACKET / EXPORT -->
+  <section id="step5Container" class="card hud-corner step-card">
+    <div class="section-head">
+      <div class="lead"><span class="num pink">05</span><div><h2>Engineering Packet &amp; Export</h2><p>Owner binder, AHJ submittal &amp; service-tech handoff.</p></div></div>
+      <span class="chip pink" id="recordIdChip">NX-0000</span>
+    </div>
+    <div class="export-grid">
+      <button id="viewBinderBtn" class="export-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7z"/><circle cx="12" cy="12" r="3"/></svg><b>PREVIEW BINDER SHEET</b><small>Full packet with schedule, flags &amp; signatures. Print / Save as PDF.</small></button>
+      <button id="exportPngBtn" class="export-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg><b>AS-BUILT PNG</b><small>High-res schematic with title block.</small></button>
+      <button id="exportJsonBtn" class="export-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H6a2 2 0 00-2 2v14a2 2 0 002 2h2M16 3h2a2 2 0 012 2v14a2 2 0 01-2 2h-2"/></svg><b>SAVE PROJECT (.nexus.json)</b><small>Portable file — reopen or share with crew.</small></button>
+      <button id="importJsonBtn" class="export-tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8V7a3 3 0 013-3h10a3 3 0 013 3v1m-4 4l-4-4m0 0l-4 4m4-4v12"/></svg><b>OPEN PROJECT</b><small>Load a saved .nexus.json file.</small></button>
+    </div>
+    <input id="importFileInput" type="file" accept="application/json,.json" class="hidden">
+    <div class="divider"></div>
+    <div class="row between">
+      <span class="mono dim" style="font-size:10px">RUN HASH: <span id="runHashLabel" class="cyan">—</span></span>
+      <button id="shareBtn" class="btn cyan-outline sm">⇪ SHARE PACKET</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- Bottom nav (wizard mode) -->
+<div id="bottomNav" class="bottom-nav no-print">
+  <div class="bottom-nav-inner">
+    <button id="prevStepBtn" class="btn">← BACK</button>
+    <div class="status" id="bottomStatus">Step 1 of 5 — Dossier</div>
+    <button id="nextStepBtn" class="btn primary">NEXT →</button>
+  </div>
+</div>
+
+<!-- ================= BINDER MODAL ================= -->
+<div id="binderModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="binderTitle">
+  <div class="modal-card">
+    <div class="modal-head no-print">
+      <h3 id="binderTitle">NEXUS AS-BUILT &amp; AHJ COMPLIANCE PACKET</h3>
+      <button id="closeBinderBtn" class="btn sm">✕ CLOSE</button>
+    </div>
+    <div class="modal-body" id="binderBody">
+      <div class="packet-banner">
+        <div>
+          <div class="site" id="modalSiteName">—</div>
+          <div id="modalAhj">AHJ: —</div>
+          <div id="modalTech" class="dim" style="font-size:10px;margin-top:2px">—</div>
+          <div class="dim" style="font-size:10px;margin-top:4px">RECORD ID: <span id="recordIdLabel" class="cyan">—</span> · <span id="modalDate"></span></div>
+        </div>
+        <div class="right">
+          <div class="dim" style="font-size:10px">ENGINEERING STATUS</div>
+          <div id="modalComplianceBadge" class="green" style="font-size:14px;font-weight:800">—</div>
+          <div id="modalDutyLabel" class="dim" style="font-size:10px;margin-top:2px">—</div>
+          <div id="modalCadence" class="amber" style="font-size:10px;margin-top:2px">—</div>
+        </div>
+      </div>
+      <div>
+        <h4 class="mono muted" style="font-size:10px;letter-spacing:.14em;margin:0 0 6px">FIELD AS-BUILT RUN DIAGRAM</h4>
+        <div class="packet-img"><img id="binderMapImage" alt="Duct schematic"></div>
+      </div>
+      <div>
+        <h4 class="mono muted" style="font-size:10px;letter-spacing:.14em;margin:0 0 6px">HOOD &amp; APPLIANCE SCHEDULE</h4>
+        <div class="table-wrap"><table class="sched"><thead><tr><th>ITEM</th><th>DESCRIPTION</th><th>LOAD CLASS</th><th>WIDTH</th></tr></thead><tbody id="modalApplianceBody"></tbody></table></div>
+      </div>
+      <div>
+        <h4 class="mono muted" style="font-size:10px;letter-spacing:.14em;margin:0 0 6px">DUCT NETWORK AS-BUILT SCHEDULE</h4>
+        <div class="table-wrap"><table class="sched"><thead><tr><th>#</th><th>COMPONENT</th><th>LENGTH</th><th>ACCESS</th><th>NFPA 96 CRITERIA</th><th>NOTE</th></tr></thead><tbody id="modalScheduleBody"></tbody></table></div>
+      </div>
+      <div>
+        <h4 class="mono muted" style="font-size:10px;letter-spacing:.14em;margin:0 0 6px">AUDIT FINDINGS &amp; §4.6 PACKET FLAGS</h4>
+        <div id="modalFlags" class="flag-list"></div>
+      </div>
+      <div class="endorse">
+        <b>INSPECTOR &amp; CLEANING SERVICE ENDORSEMENT</b>
+        <p id="modalAuditSummary" style="margin:0;line-height:1.6"></p>
+        <div class="sig-row"><div class="sig">TECHNICIAN SIGNATURE / DATE</div><div class="sig">AHJ / OWNER REPRESENTATIVE / DATE</div></div>
+      </div>
+      <div class="dim" style="font-size:9px;text-align:center">Generated offline by NEXUS Duct As-Built · NExtended Xperimental USers · DoubleA · AntManThePro. Reference standard: NFPA 96 (Ventilation Control and Fire Protection of Commercial Cooking Operations). Field verification by a qualified person is required; this packet does not replace AHJ approval.</div>
+    </div>
+    <div class="modal-foot no-print">
+      <span class="dim" style="font-size:10px;font-family:var(--mono)">RUN HASH: <span id="modalHash" class="cyan">—</span></span>
+      <div class="row"><button id="modalShareBtn" class="btn">⇪ SHARE</button><button id="printBtn" class="btn primary">🖨 PRINT / SAVE AS PDF</button></div>
+    </div>
+  </div>
+</div>
+
+<div id="toastBox" class="toast" role="status" aria-live="polite"><div><span id="toastIcon">✓</span><span id="toastMsg"></span></div></div>
+
+<script src="js/core.js"></script>
+<script src="js/parser.js"></script>
+<script src="js/canvas.js"></script>
+<script src="js/audit.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
